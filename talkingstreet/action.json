@@ -1,0 +1,26 @@
+{
+  "actions": [
+    {
+      "description": "Default Welcome Intent",
+      "name": "MAIN",
+      "fulfillment": {
+        "conversationName": "talkingconv"
+      },
+      "intent": {
+        "name": "actions.intent.MAIN",
+        "trigger": {
+          "queryPatterns": [
+            "talk to my test app"
+          ]
+        }
+      }
+    }
+  ],
+  "conversations": {
+    "talkingconv": {
+      "name": "talkingconv",
+      "url": "https://9aeb2f94.ngrok.io/web/gamessages"
+    }
+  },
+  "locale": "en"
+}
