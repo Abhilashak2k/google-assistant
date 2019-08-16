@@ -312,31 +312,6 @@ app.use(express.static(__dirname + '/views')); // html
 app.use(express.static(__dirname + '/public')); // js, css, images
 app.set('port', (process.env.PORT || config.server_port_number));
 
-
-const PEM_FOLDER_PATH = './keys/'
-const read = fs.readFileSync
-
-if (process.env.NODE_ENV === 'production') {
-    console.log('listening on port number ' + app.get('port') + ' on production env.')
-    var httpsOptions = {
-    key: read(PEM_FOLDER_PATH + 'privkey.pem', 'utf8'),
-    cert: read(PEM_FOLDER_PATH + 'cert.pem', 'utf8'),
-    ca: [
-        read(PEM_FOLDER_PATH + 'chain.pem', 'utf8'),
-        read(PEM_FOLDER_PATH + 'fullchain.pem', 'utf8')
-    ],
-    requestCert: false,
-    rejectUnauthorized: true
-    }
-    var httpsServer = https.createServer(httpsOptions, app)
-    httpsServer.listen(app.get('port'))
-} 
-else {
-    http.createServer(app).listen(app.get('port'), function() {
-        console.log('server listening on port ' + app.get('port'));
-    });
-}
-
 app.get('/ping', function(req, res) {
     return 'OK'
 })
