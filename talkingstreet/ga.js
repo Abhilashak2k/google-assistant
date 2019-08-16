@@ -1,50 +1,18 @@
 'use strict';
 var entities = require("html-entities");
 var cors = require('cors');
-var path = require('path');
 var request = require('request');
-var cities = require("cities");
-
-
+//var NodeGeocoder = require('node-geocoder');
+//var geocoder = NodeGeocoder(options);
 var bodyParser = require('body-parser');
 var config = require('./config.js')(process.env.NODE_ENV || 'development')
 var https = require('https');
 var http = require('http');
 
 var fs = require('fs');
-const requireFrom = require("requirefrom");
-const logPath = requireFrom("./log/");
-const nlpLogger = logPath("logger").nlpHistory;
-
 var mysql = require('mysql');
 var express = require('express');
 var app = express();
-
-var x = document.getElementById("demo");
-
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(showPosition);
-  } else { 
-    x.innerHTML = "Geolocation is not supported by this browser.";
-  }
-}
-
-var title_places = 
-[{
-	title : "",
-	description : "",
-	url : "",
-}];
-
- var connection = mysql.createPool({
-	//properties
-	connectionLimit : 50, 
-	host :'localhost',
-	user :'root',
-	password: '',
-	database : 'talking street',
-})
 
 const {
   actionssdk,
@@ -58,12 +26,11 @@ const {
   SimpleResponse,
  } = require('actions-on-google');
 
-  const gapp = actionssdk({debug: true});
+ const gapp = actionssdk({debug: true});
 
 var loc = "sample", cus = "sample";
 
-//remove it
-var SERVER_RESULT = [{"title":"Ram Ashraya","description":"Mumbai, Matunga","url":"https://talkingstreet.in/outlet/ram-ashraya-mumbai","img":""},{"title":"Madras Café, Mumbai","description":"Mumbai, Matunga","url":"https://talkingstreet.in/outlet/madras-cafe-mumbai","img":""},{"title":"Ayappan","description":"Mumbai, Matunga","url":"https://talkingstreet.in/outlet/ayappan-mumbai","img":""},{"title":"Cafe Mysore","description":"Mumbai, Matunga","url":"https://talkingstreet.in/outlet/mysore-cafe-mumbai","img":""}];				
+var SERVER_RESULT = [{}];				
 
 gapp.middleware((conv) => {
   conv.hasScreen =
@@ -173,9 +140,7 @@ gapp.intent('actions.intent.MAIN', (conv) =>
 				console.log("About to enter the carousel function\n");
 				carousel(conv);
 			})
-			
-			//console.log(title_places);
-			
+						
 		}
 
 		else if(rawInput == 'do you fart')
@@ -222,8 +187,10 @@ gapp.intent('actions.intent.MAIN', (conv) =>
 		}
 
 		else{//only cuisine specified
+
 		let f = rawInput.match(/^i want (.*)|show me only the (.*) options|i only want (.*)|i like (.*)|i prefer (.*)|tell me about the (.*) options|$/);
-			
+			// var locObject = cities.gps_lookup(40.672823, -74.52011);
+			// loc = locObject.city;
 			if (f ) 
 			{
 				var i;
@@ -249,6 +216,7 @@ gapp.intent('actions.intent.MAIN', (conv) =>
 
 
 function getResponseFromServer(loc, cus) {
+	loc = "Mumbai";
 				if(!!loc && !!cus)
 				var str = "http://localhost:1337/location/" + loc.toLowerCase() + "/" + cus.toLowerCase() + "/outlets";
 				var r = {
@@ -266,11 +234,9 @@ function getResponseFromServer(loc, cus) {
 					}
 					else
 					{
-						console.log("THIS IS THE BODY \n\n");
-			
-						
+						//console.log("THIS IS THE BODY \n\n")	
 						SERVER_RESULT = JSON.parse(body);
-						console.log(SERVER_RESULT[1].img);
+						//console.log(SERVER_RESULT[1].img);
 						resolve(body);
 						
 					}
@@ -285,7 +251,7 @@ function getResponseFromServer(loc, cus) {
 function carousel(conv) {
 
 SELECTED_ITEM_RESPONSES = {
- // [SELECTION_KEY_ONE]: SERVER_RESULT[4].url,
+  [SELECTION_KEY_ONE]: SERVER_RESULT[4].url,
   [SELECTION_KEY_TWO]: SERVER_RESULT[1].url,
   [SELECTION_KEY_THREE]: SERVER_RESULT[2].url,
   [SELECTION_KEY_FOUR]: SERVER_RESULT[3].url,
@@ -301,13 +267,13 @@ SELECTED_ITEM_RESPONSES = {
   conv.ask(new Carousel({
     items: {
       // Add the first item to the carousel
-      // [SELECTION_KEY_ONE]: {
-      //   title: SERVER_RESULT[4].title,
-      //   description: SERVER_RESULT[4].description,
-      //   image: new Image({
-      //     url: SERVER_RESULT[4].img,
-      //   }),
-      // },
+      [SELECTION_KEY_ONE]: {
+        title: SERVER_RESULT[4].title,
+        description: SERVER_RESULT[4].description,
+        image: new Image({
+          url: SERVER_RESULT[4].img,
+        }),
+      },
       // Add the second item to the carousel
       [SELECTION_KEY_TWO]: {
         title: SERVER_RESULT[1].title,
@@ -340,19 +306,6 @@ SELECTED_ITEM_RESPONSES = {
   }));
 }
 
-
-
-// gapp.intent('actions.intent.OPTION', (conv, params, option) => {
-//   let response = 'You did not select any item';
-//   if (option && SELECTED_ITEM_RESPONSES.hasOwnProperty(option)) {
-//     return res.redirect( SELECTED_ITEM_RESPONSES[option]);
-//   }
-//   conv.ask(response);
-// });
-
-
-//here ends the code
-
 	
 app.use(bodyParser.json());
 
@@ -360,35 +313,6 @@ app.use(cors())
 app.use(express.static(__dirname + '/views')); // html
 app.use(express.static(__dirname + '/public')); // js, css, images
 app.set('port', (process.env.PORT || config.server_port_number));
-
-
-const PEM_FOLDER_PATH = './keys/'
-const read = fs.readFileSync
-
-if (process.env.NODE_ENV === 'production') {
-    console.log('listening on port number ' + app.get('port') + ' on production env.')
-    var httpsOptions = {
-    key: read(PEM_FOLDER_PATH + 'privkey.pem', 'utf8'),
-    cert: read(PEM_FOLDER_PATH + 'cert.pem', 'utf8'),
-    ca: [
-        read(PEM_FOLDER_PATH + 'chain.pem', 'utf8'),
-        read(PEM_FOLDER_PATH + 'fullchain.pem', 'utf8')
-    ],
-    requestCert: false,
-    rejectUnauthorized: true
-    }
-    var httpsServer = https.createServer(httpsOptions, app)
-    httpsServer.listen(app.get('port'))
-} 
-else {
-    http.createServer(app).listen(app.get('port'), function() {
-        console.log('server listening on port ' + app.get('port'));
-    });
-}
-
-app.get('/ping', function(req, res) {
-    return 'OK'
-})
 
 
 /* this is for testing Google Actions */
