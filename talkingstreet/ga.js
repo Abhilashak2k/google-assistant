@@ -1,7 +1,6 @@
 'use strict';
 var entities = require("html-entities");
 var cors = require('cors');
-var request = require('request');
 //var NodeGeocoder = require('node-geocoder');
 //var geocoder = NodeGeocoder(options);
 var bodyParser = require('body-parser');
@@ -41,7 +40,6 @@ gapp.middleware((conv) => {
 
 
 // here goes the code
-
 
  const intentSuggestions = [
   'I am Hungry',
@@ -110,7 +108,7 @@ gapp.intent('actions.intent.MAIN', (conv) =>
 	//only location specified
 	console.log('USER SAID ' + rawInput);
 
-		if (rawInput === 'whats good here' || rawInput === 'where should I go to eat?' ||  rawInput == 'i am hungry' || rawInput === 'find me good food around here' || rawInput === 'what can i eat here') 
+		if ( rawInput == 'i am hungry' || rawInput == 'find me good food around here' || rawInput == 'what can i eat here') 
 		{
 		    //carousel(conv);
 		    conv.ask('Where are you?');
@@ -124,13 +122,13 @@ gapp.intent('actions.intent.MAIN', (conv) =>
 			conv.ask('OK foodie friend! Hope you get hungry soon!');
 		}
 
-		else if (rawInput == 'mumbai' || rawInput == 'delhi' || rawInput == 'bangalore' || rawInput == 'varanasi' || rawInput == 'pune' || rawInput == 'chennai')
+		else if (intentSuggestions3.includes(rawInput))
 		{
 			loc = input.toLowerCase();
 		    conv.ask('Okay so you are in ' + (loc.charAt(0).toUpperCase() + loc.substr(1)) + "\nWhat cuisine would you prefer?" );
 		    conv.ask(new Suggestions(intentSuggestions2));
 		}
-		else if (rawInput == 'rolls' || rawInput == 'snacks' || rawInput == 'sweets' || rawInput == 'bengali' || rawInput == 'italian' || rawInput == 'pani puri' || rawInput == 'rajasthani' || rawInput == 'sandwitches' || rawInput == 'lassi' || rawInput == 'dosa' || rawInput == 'chaat')
+		else if (intentSuggestions2.includes(rawInput) )
 		{
 			cus = input.toLowerCase();
 			console.log("Inside the cuisine intent\n");
@@ -313,6 +311,35 @@ app.use(cors())
 app.use(express.static(__dirname + '/views')); // html
 app.use(express.static(__dirname + '/public')); // js, css, images
 app.set('port', (process.env.PORT || config.server_port_number));
+
+
+const PEM_FOLDER_PATH = './keys/'
+const read = fs.readFileSync
+
+if (process.env.NODE_ENV === 'production') {
+    console.log('listening on port number ' + app.get('port') + ' on production env.')
+    var httpsOptions = {
+    key: read(PEM_FOLDER_PATH + 'privkey.pem', 'utf8'),
+    cert: read(PEM_FOLDER_PATH + 'cert.pem', 'utf8'),
+    ca: [
+        read(PEM_FOLDER_PATH + 'chain.pem', 'utf8'),
+        read(PEM_FOLDER_PATH + 'fullchain.pem', 'utf8')
+    ],
+    requestCert: false,
+    rejectUnauthorized: true
+    }
+    var httpsServer = https.createServer(httpsOptions, app)
+    httpsServer.listen(app.get('port'))
+} 
+else {
+    http.createServer(app).listen(app.get('port'), function() {
+        console.log('server listening on port ' + app.get('port'));
+    });
+}
+
+app.get('/ping', function(req, res) {
+    return 'OK'
+})
 
 
 /* this is for testing Google Actions */
