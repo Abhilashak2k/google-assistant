@@ -28,7 +28,7 @@
     "gulp-util": "^3.0.8",
     "hashmap": "^2.3.0",
     "html-entities": "^1.2.1",
-    "json-logic-js": "^1.2.2",
+    "json-logic-js": "^2.0.0",
     "localize": "^0.4.7",
     "mongoose": "^4.13.1",
     "request": "^2.83.0",
