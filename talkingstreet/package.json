@@ -30,7 +30,7 @@
     "html-entities": "^1.2.1",
     "json-logic-js": "^1.2.2",
     "localize": "^0.4.7",
-    "mongoose": "^4.13.1",
+    "mongoose": "^4.13.21",
     "request": "^2.83.0",
     "requirefrom": "^0.2.1",
     "sendgrid": "^5.2.3",
