@@ -20,7 +20,7 @@
     "ejs": "^2.5.6",
     "express": "^4.15.2",
     "fs": "0.0.1-security",
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.2",
     "gulp-minify-css": "^1.2.4",
     "gulp-minify-html": "^1.0.6",
     "gulp-uglify": "^3.0.0",
